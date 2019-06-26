@@ -18,6 +18,7 @@ class Square extends Component {
   handleClick(e) {
     this.props.setSquareVal(this.props.num);
   }
+
   render() {
     return (
       <React.Fragment>
