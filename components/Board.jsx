@@ -1,14 +1,13 @@
 import React, { Component } from 'react';
 import Row from './Row.jsx';
-import Reset from '../img/reset.png';
+import { MdReplay } from 'react-icons/md';
 
 class Board extends Component {
   constructor(props) {
     super(props);
     this.state = {
       squares: Array(9).fill(null),
-      nextVal: 'X',
-      gameStatus: 'ongoing'
+      nextVal: 'X'
     };
     this.updateNextVal = this.updateNextVal.bind(this);
     this.setSquareVal = this.setSquareVal.bind(this);
@@ -19,31 +18,31 @@ class Board extends Component {
 
   checkForVictory() {
     var sqrs = this.state.squares;
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 9; i += 3) {
       if (sqrs[i] && sqrs[i] === sqrs[i + 1] && sqrs[i] === sqrs[i + 2]) {
-        this.setState({ gameStatus: 'victory' });
+        this.props.setVictor(this.state.nextVal);
         return;
       }
     }
-    for (let i = 0; i < 9; i += 3) {
+    for (let i = 0; i < 3; i++) {
       if (sqrs[i] && sqrs[i] === sqrs[i + 3] && sqrs[i] === sqrs[i + 6]) {
-        this.setState({ gameStatus: 'victory' });
+        this.props.setVictor(this.state.nextVal);
         return;
       }
     }
     if (sqrs[0] && sqrs[0] === sqrs[4] && sqrs[0] === sqrs[8]) {
-      this.setState({ gameStatus: 'victory' });
+      this.props.setVictor(this.state.nextVal);
       return;
     }
     if (sqrs[2] && sqrs[2] === sqrs[4] && sqrs[2] === sqrs[6]) {
-      this.setState({ gameStatus: 'victory' });
+      this.props.setVictor(this.state.nextVal);
       return;
     }
   }
 
   checkForDraw() {
     if (!this.state.squares.includes(null)) {
-      this.setState({ gameStatus: 'Draw' });
+      this.props.setGameStatus('draw');
     }
   }
 
@@ -53,29 +52,43 @@ class Board extends Component {
   }
 
   setSquareVal(n) {
-    var newSquares = this.state.squares.slice();
-    newSquares[n] = this.state.nextVal;
-    this.setState({ squares: newSquares }, () => {
-      this.checkForVictory();
-      if (this.state.gameStatus === 'ongoing') {
-        this.checkForDraw();
-        this.updateNextVal();
-      }
-    });
+    if (!this.state.squares[n] && this.props.gameStatus === 'ongoing') {
+      var newSquares = this.state.squares.slice();
+      newSquares[n] = this.state.nextVal;
+      this.setState({ squares: newSquares }, () => {
+        this.checkForVictory();
+        if (this.props.gameStatus === 'ongoing') {
+          this.checkForDraw();
+          this.updateNextVal();
+        }
+      });
+    }
   }
 
   resetBoard() {
+    this.props.setVictor(null);
+    this.props.setGameStatus('ongoing');
     this.setState({
       squares: Array(9).fill(null),
-      nextVal: 'X',
-      gameStatus: 'ongoing'
+      nextVal: 'X'
     });
+  }
+  iconSize() {
+    return this.props.gameStatus === 'ongoing' ? 50 : 100;
+  }
+  iconColor() {
+    return this.props.gameStatus === 'ongoing' ? 'black' : 'green';
   }
 
   render() {
     return (
       <React.Fragment>
-        <img src={Reset} onClick={this.resetBoard} />
+        <MdReplay
+          size={this.iconSize()}
+          color={this.iconColor()}
+          style={{ cursor: 'pointer' }}
+          onClick={this.resetBoard}
+        />
         <table>
           <tbody>
             <Row
